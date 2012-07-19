@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.pelzer.util</groupId>
+	<artifactId>pelzer-util</artifactId>
+	<name>Pelzer Java Utilities</name>
+	<version>1.1.7</version>
+	<description>The Pelzer.com Java Utilities package.</description>
+	<url>http://util.pelzer.com/</url>
+	<developers>
+		<developer>
+			<id>jpelzer</id>
+			<name>Jason Pelzer</name>
+			<email>util.pelzer.com@pelzer.com</email>
+			<url>http://www.pelzer.com</url>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<timezone>-5</timezone>
+		</developer>
+	</developers>
+	<licenses>
+		<license>
+			<name>Apache 2</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>A business-friendly OSS license</comments>
+		</license>
+	</licenses>
+	<profiles>
+		<profile>
+			<id>windows-specific</id>
+			<activation>
+				<os>
+					<family>Windows</family>
+				</os>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.wagon</groupId>
+						<artifactId>wagon-ssh-external</artifactId>
+						<version>1.0-beta-7</version>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	<scm>
+		<connection>scm:svn:http://util.pelzer.com/repos/util/</connection>
+		<developerConnection>scm:svn:http://util.pelzer.com/repos/util/</developerConnection>
+		<url>http://util.pelzer.com/repos/util/</url>
+	</scm>
+	<reporting>
+		<plugins>
+			<!-- Javadoc -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</reporting>
+	<build>
+		<sourceDirectory>src/main/java</sourceDirectory>
+		<scriptSourceDirectory>src/main/scripts</scriptSourceDirectory>
+		<testSourceDirectory>src/test/java</testSourceDirectory>
+		<outputDirectory>target/classes</outputDirectory>
+		<testOutputDirectory>target/test-classes</testOutputDirectory>
+		<defaultGoal>compile</defaultGoal>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+		</testResources>
+		<directory>target</directory>
+		<finalName>${artifactId}-${version}</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-repository-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<version>2.1</version>
+			</plugin>
+		</plugins>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh</artifactId>
+				<version>1.0-beta-6</version>
+			</extension>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh-external</artifactId>
+				<version>1.0-beta-6</version>
+			</extension>
+		</extensions>
+
+	</build>
+	<dependencies>
+		<dependency>
+			<scope>test</scope>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+		</dependency>
+		<dependency>
+			<scope>provided</scope>
+			<groupId>jid3</groupId>
+			<artifactId>jid3</artifactId>
+			<version>0.46</version>
+		</dependency>
+	</dependencies>
+	<repositories>
+		<repository>
+			<id>pelzer</id>
+			<name>pelzer</name>
+			<url>http://util.pelzer.com/artifactory/repository/</url>
+		</repository>
+	</repositories>
+	<distributionManagement>
+		<repository>
+			<id>pelzer-repository</id>
+			<name>Jason Pelzer's Repository</name>
+			<url>scpexe://amazon.pelzer.com:/var/www/vhosts/pelzer.com/htdocs/repository/</url>
+		</repository>
+	</distributionManagement>
+</project>
+
