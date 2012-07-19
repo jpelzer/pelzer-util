@@ -99,6 +99,10 @@
 		</repository>
 	</repositories>
 	<distributionManagement>
+	<!-- <site> -->
+	<!-- <id>dropbox</id> -->
+	<!-- <url>file:///Users/jpelzer/Dropbox/workspace/repo/sites/pelzer-util</url> -->
+	<!-- </site> -->
 		<repository>
 			<id>repo</id>
 			<url>https://github.com/jpelzer/repo/raw/master/releases</url>
