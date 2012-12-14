@@ -5,7 +5,7 @@
 	<groupId>com.pelzer.util</groupId>
 	<artifactId>pelzer-util</artifactId>
 	<name>Pelzer Java Utilities</name>
-	<version>1.1.9</version>
+	<version>1.2.0</version>
 	<description>The Pelzer.com Java Utilities package.</description>
 	<url>http://util.pelzer.com/</url>
 	<parent>
@@ -135,6 +135,12 @@
 			<artifactId>gson</artifactId>
 			<version>1.6</version>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.16</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 	<distributionManagement>

@@ -368,7 +368,7 @@ public class StringMan {
   }
 
   /**
-   * Converts a string with possible high-ascii values into their ascii7 equiv., for instance 'è'
+   * Converts a string with possible high-ascii values into their ascii7 equiv., for instance 'Ã©'
    * maps to 'e'. All low ascii characters are left untouched. Any character above 255 is converted
    * to a space.
    */

@@ -26,9 +26,6 @@ public class StringManTest extends TestCase {
 
   public void testASCII7() {
     assertEquals("Beyonce", StringMan.getUS7ASCIIEquiv("Beyonc" + ((char) 233)));
-    // assertEquals("Beyonce e Acute c Cedilla a Circumflex e Grave n Tilde u
-    // Umlaut/Diaeresis", getUS7ASCIIEquiv("Beyoncé é Acute ç Cedilla â
-    // Circumflex è Grave ñ Tilde ü Umlaut/Diaeresis"));
   }
 
   public void testStripNonAlphaChars() {
