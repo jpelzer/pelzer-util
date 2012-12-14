@@ -17,7 +17,7 @@ package com.pelzer.util;
 
 import junit.framework.TestCase;
 
-import com.pelzer.util.Logging;
+import org.apache.log4j.Level;
 
 /**
  * This test doesn't actually test much, it just logs a few things, but as long as it doesn't throw
@@ -45,5 +45,12 @@ public class LoggingUnitTest extends TestCase {
     logger = Logging.getLogger(this);
     logger.debug("I am a {}","test");
     logger.debug("Testing exception ({})",new RuntimeException("Expected exception!"),"foo");
+  }
+  
+  public void testLog4J(){
+    org.apache.log4j.Logger log4j =  org.apache.log4j.Logger.getLogger(LoggingUnitTest.class);
+    log4j.log(Level.INFO, "Testing Log4J INFO.");
+    log4j =  org.apache.log4j.Logger.getLogger(LoggingUnitTest.class.getName()+"#testLog4J()");
+    log4j.log(Level.DEBUG, "Testing Log4J DEBUG.");
   }
 }
