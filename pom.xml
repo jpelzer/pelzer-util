@@ -5,7 +5,7 @@
 	<groupId>com.pelzer.util</groupId>
 	<artifactId>pelzer-util</artifactId>
 	<name>Pelzer Java Utilities</name>
-	<version>1.1.8</version>
+	<version>1.1.9</version>
 	<description>The Pelzer.com Java Utilities package.</description>
 	<url>http://util.pelzer.com/</url>
 	<parent>
@@ -72,8 +72,8 @@
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
+					<source>1.6</source>
+					<target>1.6</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -87,6 +87,35 @@
 				<version>1.4</version>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<!-- Turn off the warning that m2eclipse doesn't support 'enforce' -->
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-enforcer-plugin</artifactId>
+										<versionRange>[1.0.0,)</versionRange>
+										<goals>
+											<goal>enforce</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 	<dependencies>
 		<dependency>
@@ -100,6 +129,12 @@
 			<groupId>org.blinkenlights.jid3</groupId>
 			<artifactId>JID3</artifactId>
 			<version>0.46</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>1.6</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 	<distributionManagement>
