@@ -1,5 +1,5 @@
 /**
- * Copyright 2007 Jason Pelzer.
+ * Copyright 2007-2012 Jason Pelzer.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -26,9 +26,17 @@ public class StringManTest extends TestCase {
 
   public void testASCII7() {
     assertEquals("Beyonce", StringMan.getUS7ASCIIEquiv("Beyonc" + ((char) 233)));
-    // assertEquals("Beyonce e Acute c Cedilla a Circumflex e Grave n Tilde u
-    // Umlaut/Diaeresis", getUS7ASCIIEquiv("Beyoncé é Acute ç Cedilla â
-    // Circumflex è Grave ñ Tilde ü Umlaut/Diaeresis"));
+  }
+  
+  public void testIsStringTrue(){
+    assertTrue(StringMan.isStringTrue("true"));
+    assertTrue(StringMan.isStringTrue("TRUE"));
+    assertTrue(StringMan.isStringTrue("1"));
+    assertTrue(StringMan.isStringTrue("yES"));
+    assertFalse(StringMan.isStringTrue("one"));
+    assertFalse(StringMan.isStringTrue("no"));
+    assertFalse(StringMan.isStringTrue(""));
+    assertFalse(StringMan.isStringTrue(null));
   }
 
   public void testStripNonAlphaChars() {

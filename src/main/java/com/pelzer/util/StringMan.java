@@ -87,6 +87,16 @@ public class StringMan {
     }
     return sw.getBuffer().toString();
   }
+  
+  /**
+   * Returns true if the string is 'TRUE' or 'YES' or '1', case insensitive.
+   * False for null, empty, etc.
+   */
+  public static boolean isStringTrue(String in) {
+    if (in == null)
+      return false;
+    return in.equalsIgnoreCase("TRUE") || in.equalsIgnoreCase("YES") || in.equals("1");
+  }
 
   /**
    * Chops a string off after a certain number of characters. If the string is shorter than the
@@ -368,7 +378,7 @@ public class StringMan {
   }
 
   /**
-   * Converts a string with possible high-ascii values into their ascii7 equiv., for instance 'è'
+   * Converts a string with possible high-ascii values into their ascii7 equiv., for instance 'Ã©'
    * maps to 'e'. All low ascii characters are left untouched. Any character above 255 is converted
    * to a space.
    */
