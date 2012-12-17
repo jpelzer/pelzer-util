@@ -51,10 +51,10 @@ public final class Logging {
 
   static {
     // Mute the logging system?
-    mute = isStringTrue(System.getProperty("pelzer.log.mute"));
+    mute = StringMan.isStringTrue(System.getProperty("pelzer.log.mute"));
 
     // Enable method-name logging?
-    logMethodNames = isStringTrue(System.getProperty("pelzer.log.methods"));
+    logMethodNames = StringMan.isStringTrue(System.getProperty("pelzer.log.methods"));
 
     // Set up a rolling log file?
     final String logfile = System.getProperty("pelzer.log");
@@ -84,22 +84,13 @@ public final class Logging {
     rootLogger.addHandler(streamHandler);
     java.util.logging.Logger.getLogger("com.pelzer").setLevel(Priority.ALL.getLevel());
 
-    if (isStringTrue(PropertyManager.getProperty("pelzer.log.configurelog4j")))
+    if (StringMan.isStringTrue(PropertyManager.getProperty("pelzer.log.configurelog4j")))
       configureLog4j();
 
     loggingLogger.info("Build Info: Build #" + PropertyManager.getBuildNumber() + " - " + PropertyManager.getProperty("", "build.date") + " (" + PropertyManager.getProperty("", "build.user") + ")");
     loggingLogger.info("Logging is now initialized.");
   }
 
-  /**
-   * Returns true if the string is 'TRUE' or 'YES' or '1', case insensitive.
-   * False for other strings or null.
-   */
-  private static boolean isStringTrue(String in) {
-    if (in == null)
-      return false;
-    return in.equalsIgnoreCase("TRUE") || in.equalsIgnoreCase("YES") || in.equals("1");
-  }
 
   /**
    * Called during init, potentially resets log4j to follow the settings

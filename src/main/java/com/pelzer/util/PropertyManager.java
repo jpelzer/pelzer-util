@@ -42,20 +42,15 @@ public class PropertyManager {
   private static java.util.logging.Logger logger            = java.util.logging.Logger.getLogger(PropertyManager.class.getName());
   private static String                   hostname          = "UNKNOWN";
   static final String                     KEY_BUILD_NUMBER  = "build.number";
-  
+
   private static PropertyManager          singletonInstance = null;
-  
+
   static {
     logger.setLevel(Logging.Priority.ERROR.getLevel());
-    
-    String muteString = System.getProperty("pelzer.mute");
-    if (muteString == null) {
-      muteString = System.getProperty("PELZER_MUTE");
-    }
-    if (muteString != null && (muteString.equalsIgnoreCase("TRUE") || muteString.equalsIgnoreCase("YES"))) {
+
+    if (StringMan.isStringTrue(System.getProperty("pelzer.mute")) || StringMan.isStringTrue(System.getProperty("PELZER_MUTE")))
       logger.setLevel(Logging.Priority.FATAL.getLevel());
-    }
-    
+
     singletonInstance = new PropertyManager("PropertyManager.properties", null);
     // Now try to set up the hostname
     try {
@@ -66,43 +61,44 @@ public class PropertyManager {
         hostname = hostname.substring(0, hostname.indexOf("."));
       }
       logger.info("PropertyManager has determined HOSTNAME='" + hostname + "'");
-    } catch (final Exception ex) {
+    }
+    catch (final Exception ex) {
       logger.log(Logging.Priority.ERROR.getLevel(), "Exception getting hostname during PropertyManager static init.", ex);
     }
   }
-  
+
   public static String getBuildNumber() {
     return getProperty(KEY_BUILD_NUMBER);
   }
-  
+
   public static String getHostname() {
     return hostname;
   }
-  
+
   public synchronized static ManagedProperties getProperties(final String namespace) {
     return new PropertyManager.ManagedProperties(namespace);
   }
-  
+
   public synchronized static String getProperty(final String key) {
     return getProperty("", key, null);
   }
-  
+
   public synchronized static String getProperty(final String namespace, final String key) {
     return getProperty(namespace, key, null);
   }
-  
+
   public synchronized static String getProperty(final String namespace, final String key, final String defaultValue) {
     return singletonInstance._getProperty(namespace, key, defaultValue);
   }
-  
+
   public synchronized static String getLocalizedProperty(final String key) {
     return getLocalizedProperty("", key, null);
   }
-  
+
   public synchronized static String getLocalizedProperty(final String namespace, final String key) {
     return getLocalizedProperty(namespace, key, null);
   }
-  
+
   /**
    * @return the underlying singleton the PM is relying on. Only used for unit
    *         testing.
@@ -110,7 +106,7 @@ public class PropertyManager {
   static PropertyManager getSingletonInstance() {
     return singletonInstance;
   }
-  
+
   /**
    * Allows retrieval of localized properties set up for SPECIFIC hosts. Calling
    * getLocalizedProperty("foo.bar.BLAH") on the machine 'wintermute' is
@@ -123,20 +119,30 @@ public class PropertyManager {
       return getProperty("", hostname + "." + key, defaultValue);
     return getProperty(hostname + "." + namespace, key, defaultValue);
   }
-  
-  public synchronized static void setDefaultEnvironment(final String defaultEnvironment) {
+
+  synchronized static void setDefaultEnvironment(final String defaultEnvironment) {
+    if (singletonInstance.defaultEnvironment != null && !singletonInstance.defaultEnvironment.equals(defaultEnvironment)) {
+      logger.warning("**********************************************************************");
+      logger.warning("The default environment has been overridden via setDefaultEnvironment.");
+      logger.warning("It is generally preferable to set the environment via the following:");
+      logger.warning("java -Dpelzer.environment=FOO");
+      logger.warning("");
+      logger.warning("Old environment=" + singletonInstance.defaultEnvironment);
+      logger.warning("New environment=" + defaultEnvironment);
+      logger.warning("**********************************************************************");
+    }
     singletonInstance.defaultEnvironment = defaultEnvironment;
     singletonInstance.defaultSearchEnvironments = null;
   }
-  
+
   public synchronized static String getEnvironment() {
     return singletonInstance.getDefaultEnvironment();
   }
-  
+
   private static Boolean IS_DEV  = null;
   private static Boolean IS_TEST = null;
   private static Boolean IS_PROD = null;
-  
+
   /**
    * Called the first time {@link #isDEV()}, {@link #isTEST()} or
    * {@link #isPROD()} is called, to cache the values. NOT called during static
@@ -168,9 +174,9 @@ public class PropertyManager {
         IS_PROD = true;
       }
     }
-    
+
   }
-  
+
   /** @return true if the environment is DEV */
   public static boolean isDEV() {
     if (IS_DEV == null) {
@@ -178,7 +184,7 @@ public class PropertyManager {
     }
     return IS_DEV;
   }
-  
+
   /** @return true if the environment is TEST */
   public static boolean isTEST() {
     if (IS_TEST == null) {
@@ -186,7 +192,7 @@ public class PropertyManager {
     }
     return IS_TEST;
   }
-  
+
   /** @return true if the environment is PROD */
   public static boolean isPROD() {
     if (IS_PROD == null) {
@@ -194,7 +200,7 @@ public class PropertyManager {
     }
     return IS_PROD;
   }
-  
+
   public static List<Map.Entry<String, String>> getAllProperties(final String environment) {
     final String oldEnvironment = PropertyManager.getEnvironment();
     try {
@@ -206,11 +212,12 @@ public class PropertyManager {
         out.add(new PropertyEntry(key, value));
       }
       return out;
-    } finally {
+    }
+    finally {
       PropertyManager.setDefaultEnvironment(oldEnvironment);
     }
   }
-  
+
   /**
    * Looks at the prefix of the key up to the first period. If it is UPPERCASE,
    * strips it off then checks to see the PM has a value for that key in the
@@ -219,7 +226,7 @@ public class PropertyManager {
    * prefix, returns the original key.
    */
   private static String stripEnvironmentPrefix(final String key) {
-    
+
     if (key.indexOf('.') < 0)
       return key;
     final String prefix = key.substring(0, key.indexOf('.'));
@@ -231,52 +238,54 @@ public class PropertyManager {
       return key;
     return newKey;
   }
-  
+
   private static class PropertyEntry implements Map.Entry<String, String> {
     private final String key;
     private final String value;
-    
+
     public PropertyEntry(final String key, final String value) {
       this.key = key;
       this.value = value;
     }
-    
+
     public String getKey() {
       return key;
     }
-    
+
     public String getValue() {
       return value;
     }
-    
+
     public String setValue(final String value) {
       throw new RuntimeException("setValue is not implemented.");
     }
-    
+
   }
-  
+
   // --------------------------------------------------------------
   private String           defaultEnvironment  = null;
   private final String     environmentFilename = "PropertyManager.environment.properties";
   private final Properties allProperties       = new Properties();
-  
+
   private PropertyManager(final String basePropertyFile, final String defaultEnvironment) {
     logger.warning("PropertyManager beginning construction. basePropertyFile='" + basePropertyFile + "'");
     this.defaultEnvironment = defaultEnvironment;
     this.defaultEnvironment = getDefaultEnvironment();
-    
+
     // First, init the properties
     loadProperties(basePropertyFile, 0);
-    
+
     // Now we need to load any overrides
     try {
       loadOverrides();
-    } catch (final Exception ex) {
+    }
+    catch (final Exception ex) {
       logger.log(Logging.Priority.ERROR.getLevel(), "Exception during loadOverrides. Ignoring.", ex);
     }
     logger.warning("PropertyManager finished construction. basePropertyFile='" + basePropertyFile + "'");
+    EnvironmentManager.markInitialized();
   }
-  
+
   /**
    * Opens an inputstream (wrapped in a buffer) for the given filename using
    * several mechanisms, the first being the classpath, then looking in the same
@@ -287,13 +296,13 @@ public class PropertyManager {
     // First try using the PropertyManager's class loader
     Enumeration<URL> urls = PropertyManager.class.getClassLoader().getResources(filename);
     final List<InputStream> ioStreams = new ArrayList<InputStream>();
-    
+
     while (urls.hasMoreElements()) {
       ioStreams.add(urls.nextElement().openStream());
     }
     if (ioStreams.size() > 0)
       return ioStreams;
-    
+
     // Second try, use the thread context classloader
     urls = Thread.currentThread().getContextClassLoader().getResources(filename);
     while (urls.hasMoreElements()) {
@@ -301,18 +310,18 @@ public class PropertyManager {
     }
     if (ioStreams.size() > 0)
       return ioStreams;
-    
+
     // That didn't work, try again... (This way only works for single items)
     final URL filePathURL = PropertyManager.class.getResource(filename);
     if (filePathURL != null) {
       ioStreams.add(filePathURL.openConnection().getInputStream());
       return ioStreams;
     }
-    
+
     ioStreams.add(new ClassPathResource(filename).getInputStream());
     return ioStreams;
   }
-  
+
   /**
    * Loads the given property file, plus any files that are referenced by
    * #include statements
@@ -327,9 +336,11 @@ public class PropertyManager {
         logger.info("Property file loaded successfully (" + filename + ")");
         io.close();
       }
-    } catch (final java.io.FileNotFoundException ex) {
+    }
+    catch (final java.io.FileNotFoundException ex) {
       logger.warning("Property file not found (" + filename + ")");
-    } catch (final java.io.IOException ex) {
+    }
+    catch (final java.io.IOException ex) {
       logger.warning("IOException loading file: " + ex.getMessage());
       logger.log(Logging.Priority.FATAL.getLevel(), "Error occured while loading properties file (" + filename + ")", ex);
     }
@@ -339,7 +350,7 @@ public class PropertyManager {
       loadProperties(includeFile, depth + 1);
     }
   }
-  
+
   /**
    * Reads the property file looking for '#include' statements
    */
@@ -354,11 +365,11 @@ public class PropertyManager {
     java.io.InputStream in = null;
     try {
       final List<InputStream> ioStreams = getInputStreamsForFile(filename);
-      
+
       for (int i = 0; i < ioStreams.size(); i++) {
         try {
           in = ioStreams.get(i);
-          
+
           int currentChar = in.read();
           String currentLine = "";
           while (currentChar != -1) {
@@ -380,23 +391,27 @@ public class PropertyManager {
             }
             currentChar = in.read();
           }
-        } catch (final java.io.IOException ex) {
+        }
+        catch (final java.io.IOException ex) {
           logger.log(Logging.Priority.ERROR.getLevel(), "Unable to read property file to parse include files (" + filename + "): ", ex);
-        } finally {
+        }
+        finally {
           try {
             if (in != null) {
               in.close();
             }
-          } catch (final java.io.IOException ignored) {
+          }
+          catch (final java.io.IOException ignored) {
           }
         }
       }
-    } catch (final java.io.IOException ex) {
+    }
+    catch (final java.io.IOException ex) {
       logger.log(Logging.Priority.ERROR.getLevel(), "Unable to read property file to parse include files (" + filename + "): ", ex);
     }
     return filenames.toArray(new String[filenames.size()]);
   }
-  
+
   /**
    * Replaces variables like {ENVIRONMENT} with their correct values, also
    * handles clarifying obfuscated strings in the form
@@ -406,10 +421,10 @@ public class PropertyManager {
     if (inString == null || inString == "")
       return inString;
     String outString = inString;
-    
+
     // Replace $ENVIRONMENT with the default environment
     outString = stringReplace(outString, "{ENVIRONMENT}", defaultEnvironment);
-    
+
     // Go through the string and try to replace {...} escaped keys
     String currentToken = "";
     String replacedString = "";
@@ -445,7 +460,7 @@ public class PropertyManager {
       replacedString += "{" + currentToken;
     }
     outString = replacedString;
-    
+
     // If in == out, then we've done as many replacements as we can, we're done
     if (outString.equals(inString)) {
       // Finally, check to see if the string should be clarified
@@ -458,7 +473,7 @@ public class PropertyManager {
     }
     return replaceVariables(outString);
   }
-  
+
   /** Replaces a first occurence of a String with another string */
   private String stringReplace(final String source, final String find, final String replace) {
     if (source == null || find == null || replace == null)
@@ -470,7 +485,7 @@ public class PropertyManager {
       return replace + source.substring(find.length());
     return source.substring(0, index) + replace + source.substring(index + find.length());
   }
-  
+
   /**
    * Called by the PropertyManager on init, overridden keys are loaded from the
    * database or elsewhere and placed into our allProperties object, as though
@@ -483,7 +498,7 @@ public class PropertyManager {
     loadOverridesFromEnv();
     loadOverridesFromCommandLine();
   }
-  
+
   private void loadOverridesFromEnv() {
     final Map<String, String> env = System.getenv();
     for (final String key : env.keySet()) {
@@ -500,14 +515,14 @@ public class PropertyManager {
       setOverride(key, value);
     }
   }
-  
+
   /**
    * Decide if a key from System.getenv() is interesting for overrides, so it is
    * not all uppercase, not in the disallowed list, and has the right prefix.
    */
   boolean isEnvKeyInteresting(final String key) {
     final List<String> disallowedKeys = Arrays.asList("windir", "SystemDrive", "CommonProgramFiles", "ComSpec", "SystemRoot", "Path", "ProgramFiles");
-    
+
     if (key == null || key.length() == 0)
       return false;
     // No all-uppercase keys
@@ -516,23 +531,21 @@ public class PropertyManager {
     // No keys in the list
     if (disallowedKeys.contains(key))
       return false;
-    
+
     return true;
   }
-  
+
   /**
    * Loads overrides from System.getProperties(), mostly for things passed in on
    * the command line using the -Dkey=value scheme.
    */
   private void loadOverridesFromCommandLine() {
-    final List<String> disallowedKeys = Arrays.asList("java.version", "java.vendorjava.vendor.url", "java.home", "java.vm.specification.version", "java.vm.specification.vendor",
-        "java.vm.specification.name", "java.vm.version", "java.vm.vendor", "java.vm.name", "java.specification.version", "java.specification.vendor", "java.specification.name", "java.class.version",
-        "java.class.path", "java.library.path", "java.io.tmpdir", "java.compiler", "java.ext.dirs", "os.name", "os.arch", "os.version", "file.separator", "path.separator", "line.separator",
-        "user.name", "user.home", "user.dir", "java.runtime.name", "sun.boot.library.path", "java.vendor.url", "file.encoding.pkg", "sun.java.launcher", "user.country", "sun.os.patch.level",
-        "java.runtime.version", "java.awt.graphicsenv", "java.endorsed.dirs", "user.variant", "sun.jnu.encoding", "sun.management.compiler", "user.timezone", "java.awt.printerjob", "file.encoding",
-        "sun.arch.data.model", "user.language", "awt.toolkit", "java.vm.info", "sun.boot.class.path", "java.vendor", "java.vendor.url.bug", "sun.io.unicode.encoding", "sun.cpu.endian", "sun.desktop",
-        "sun.cpu.isalist");
-    
+    final List<String> disallowedKeys = Arrays.asList("java.version", "java.vendorjava.vendor.url", "java.home", "java.vm.specification.version", "java.vm.specification.vendor", "java.vm.specification.name", "java.vm.version",
+        "java.vm.vendor", "java.vm.name", "java.specification.version", "java.specification.vendor", "java.specification.name", "java.class.version", "java.class.path", "java.library.path", "java.io.tmpdir", "java.compiler",
+        "java.ext.dirs", "os.name", "os.arch", "os.version", "file.separator", "path.separator", "line.separator", "user.name", "user.home", "user.dir", "java.runtime.name", "sun.boot.library.path", "java.vendor.url", "file.encoding.pkg",
+        "sun.java.launcher", "user.country", "sun.os.patch.level", "java.runtime.version", "java.awt.graphicsenv", "java.endorsed.dirs", "user.variant", "sun.jnu.encoding", "sun.management.compiler", "user.timezone", "java.awt.printerjob",
+        "file.encoding", "sun.arch.data.model", "user.language", "awt.toolkit", "java.vm.info", "sun.boot.class.path", "java.vendor", "java.vendor.url.bug", "sun.io.unicode.encoding", "sun.cpu.endian", "sun.desktop", "sun.cpu.isalist");
+
     final Properties sysProperties = System.getProperties();
     for (final Object obj : sysProperties.keySet()) {
       final String key = (String) obj;
@@ -550,7 +563,7 @@ public class PropertyManager {
       setOverride(key, value);
     }
   }
-  
+
   /**
    * Sets a property manually: You'd generally only call this method from a
    * unit-test, to make sure a certain property was set correctly...
@@ -558,7 +571,7 @@ public class PropertyManager {
   public static void override(final String key, final String value) {
     singletonInstance.setOverride(key, value);
   }
-  
+
   /** Replaces whatever was in the allProperties object, and clears the cache. */
   private void setOverride(final String key, final String value) {
     final boolean doSecurely = key.startsWith("_");
@@ -585,11 +598,11 @@ public class PropertyManager {
       }
     }
   }
-  
+
   private String _getProperty(final String namespace, final String key, final String defaultValue) {
     return _getProperty(namespace, key, defaultValue, getSearchEnvironments());
   }
-  
+
   private String _getProperty(final String namespace, final String key, final String defaultValue, final List<String> searchEnvironments) {
     if (searchEnvironments == null || searchEnvironments.size() == 0 || searchEnvironments.get(0) == null) {
       logger.info("Failed search in namespace='" + namespace + "' for key='" + key + "'");
@@ -598,7 +611,7 @@ public class PropertyManager {
     // "namespace.key" or just "key" if nameplace is blank
     final String namespaceKey = namespace + (namespace != null && namespace != "" ? "." : "") + key;
     String returnValue = null;
-    
+
     final String environment = searchEnvironments.get(0);
     final String envNamespaceKey = environment + (!environment.equals("") ? "." : "") + namespaceKey;
     // We don't have it cached. Look for env.nameplace.key in our mainProperties
@@ -613,9 +626,9 @@ public class PropertyManager {
     searchEnvironments.remove(0);
     return _getProperty(namespace, key, defaultValue, searchEnvironments);
   }
-  
+
   private List<String> defaultSearchEnvironments = null;
-  
+
   /**
    * @return a List of environments that should be searched when finding
    *         properties, for instance {"JPELZER","DEV",""} This method
@@ -641,18 +654,18 @@ public class PropertyManager {
     defaultSearchEnvironments.add("");
     return getSearchEnvironments();
   }
-  
+
   private String getDefaultEnvironment() {
     if (defaultEnvironment != null)
       return defaultEnvironment;
-    
+
     String envOverride = System.getProperty("pelzer.environment");
     if (envOverride == null) {
       envOverride = System.getProperty("PELZER_ENVIRONMENT");
     }
     if (isAcceptableEnvironment(envOverride)) {
       defaultEnvironment = envOverride.toUpperCase();
-      logger.warning("Default environment determined to be '" + defaultEnvironment + "' from command-line override 'pelzer.environment'");
+      logger.warning("Default environment determined to be '" + defaultEnvironment + "' from system property 'pelzer.environment'");
       return defaultEnvironment;
     }
     String returnValue = "ERROR";
@@ -663,16 +676,17 @@ public class PropertyManager {
       properties.load(io);
       io.close();
       returnValue = properties.getProperty("environment");
-    } catch (final java.io.IOException ex) {
+    }
+    catch (final java.io.IOException ex) {
       logger.log(Logging.Priority.ERROR.getLevel(), "Unable to load environment property file '" + environmentFilename + "'... This is a Bad Thing!!!");
     }
-    
+
     defaultEnvironment = returnValue;
     logger.warning("Default environment determined to be '" + defaultEnvironment + "' from property file '" + environmentFilename + "'");
     return defaultEnvironment;
-    
+
   }
-  
+
   /**
    * @return true if the passed in environment is not null, empty, and contains
    *         no non-alphanumeric chars.
@@ -689,7 +703,7 @@ public class PropertyManager {
     }
     return true;
   }
-  
+
   /**
    * This class emulates a java.util.Properties object, but doesn't quite
    * support all its methods. So we don't extend Properties, we just have
@@ -697,7 +711,7 @@ public class PropertyManager {
    */
   public static class ManagedProperties {
     private String namespace = "";
-    
+
     /**
      * Pass in a namespace, such as "com.pelzer.util" and then call
      * getProperty("BLAH") is the same as calling
@@ -706,17 +720,17 @@ public class PropertyManager {
     private ManagedProperties(final String namespace) {
       this.namespace = namespace;
     }
-    
+
     public String getProperty(final String key) {
       return this.getProperty(key, null);
     }
-    
+
     public String getProperty(final String key, final String defaultValue) {
       return PropertyManager.getProperty(namespace, key, defaultValue);
     }
-    
+
   }
-  
+
   /**
    * Performs preprocessing on the PropertyManager.properties file, performing
    * #include processing, obfuscation, etc.
@@ -726,13 +740,14 @@ public class PropertyManager {
       if (args.length < 3) {
         printUsageAndExit();
       }
-      
+
       Logging.mute();
       try {
         if (args[0].equals("INCLUDES")) {
           try {
             processIncludes(args[1], args[2]);
-          } catch (final IOException ex) {
+          }
+          catch (final IOException ex) {
             ex.printStackTrace();
             System.exit(-1);
           }
@@ -742,7 +757,8 @@ public class PropertyManager {
           }
           try {
             processEnvironments(args[1], args[2], args[3]);
-          } catch (final IOException ex) {
+          }
+          catch (final IOException ex) {
             ex.printStackTrace();
             System.exit(-1);
           }
@@ -750,7 +766,8 @@ public class PropertyManager {
           printUsageAndExit();
           System.exit(-1);
         }
-      } catch (final Exception ex) {
+      }
+      catch (final Exception ex) {
         System.out.println("Unexpected exception during processing: ");
         ex.printStackTrace();
         System.exit(-1);
@@ -758,7 +775,7 @@ public class PropertyManager {
       System.out.println("Done.");
       System.exit(0);
     }
-    
+
     private static void printUsageAndExit() {
       System.out.println("Usage:");
       System.out.println("  PropertyProcessor {INCLUDES|ENVIRONMENTS} {source property file} {target property file} {environment}");
@@ -771,13 +788,13 @@ public class PropertyManager {
       System.out.println("                   tags after the #env tags.");
       System.exit(-2);
     }
-    
+
     private static void processEnvironments(final String sourceProps, final String targetProps, final String environment) throws IOException {
       System.out.println("Processing #env statements from '" + sourceProps + "' to '" + targetProps + "'");
       final BufferedReader reader = new BufferedReader(new FileReader(sourceProps));
       final FileWriter writer = new FileWriter(targetProps);
       // Begin processing...
-      
+
       String line = null;
       // depth is the count of how many #env tags we've seen
       // envDepth incremented every time we see an #env, decremented when we see
@@ -822,11 +839,11 @@ public class PropertyManager {
           writer.write(line + "\n");
         }
       }
-      
+
       reader.close();
       writer.close();
     }
-    
+
     /**
      * Reads the sourceProps file, processing the #include directives and
      * creating a new file, targetProps. TargetProps will be overwritten.
@@ -840,7 +857,7 @@ public class PropertyManager {
       processIncludes(sourceProps, writer);
       writer.close();
     }
-    
+
     /**
      * Called by {@link #processIncludes(String, String)} to handle the
      * appending of included files onto the already opened writer object.
@@ -851,7 +868,8 @@ public class PropertyManager {
         return;
       try {
         reader = new BufferedReader(new FileReader(sourceProps));
-      } catch (final IOException ex) {
+      }
+      catch (final IOException ex) {
         System.out.println("IOException while opening file for reading... Skipping this file: " + ex.getMessage());
         return;
         // ex.printStackTrace();
@@ -888,7 +906,7 @@ public class PropertyManager {
       writer.write("#### End of file '" + sourceProps + "' ####\n");
     }
   }
-  
+
   /**
    * Takes the given value and obfuscates it as well as it can. It ignores
    * {reference} directives, returning any value that contains a '{' character
@@ -900,5 +918,5 @@ public class PropertyManager {
       return value;
     return "[[[" + ObfuscationManager.obfuscate(value) + "]]]";
   }
-  
+
 }
