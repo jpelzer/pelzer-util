@@ -31,12 +31,6 @@ import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.StreamHandler;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.Layout;
-import org.apache.log4j.spi.ErrorHandler;
-import org.apache.log4j.spi.Filter;
-import org.apache.log4j.spi.LoggingEvent;
-
 /**
  * The Logging system is used to output informational and logging messages to
  * the console. Uses the java.util.logging system.
@@ -108,20 +102,20 @@ public final class Logging {
 
     loggingLogger.info("Reseting log4j to use pelzer logging instead.");
     org.apache.log4j.LogManager.resetConfiguration();
-    org.apache.log4j.Logger.getRootLogger().addAppender(new Appender() {
+    org.apache.log4j.Logger.getRootLogger().addAppender(new org.apache.log4j.Appender() {
       private String name;
-
+      
       @Override
       public void setName(String name) {
         this.name = name;
       }
 
       @Override
-      public void setLayout(Layout layout) {
+      public void setLayout(org.apache.log4j.Layout layout) {
       }
 
       @Override
-      public void setErrorHandler(ErrorHandler errorHandler) {
+      public void setErrorHandler(org.apache.log4j.spi.ErrorHandler errorHandler) {
       }
 
       @Override
@@ -135,25 +129,24 @@ public final class Logging {
       }
 
       @Override
-      public Layout getLayout() {
+      public org.apache.log4j.Layout getLayout() {
         return null;
       }
 
       @Override
-      public Filter getFilter() {
+      public org.apache.log4j.spi.Filter getFilter() {
         return null;
       }
 
       @Override
-      public ErrorHandler getErrorHandler() {
+      public org.apache.log4j.spi.ErrorHandler getErrorHandler() {
         return null;
       }
 
       @Override
-      public void doAppend(LoggingEvent event) {
+      public void doAppend(org.apache.log4j.spi.LoggingEvent event) {
         Logger logger = getLogger(event.getLoggerName());
         logger.genericLog(event.getMessage() + "", event.getThrowableInformation() == null ? null : event.getThrowableInformation().getThrowable(), convertPriority(event.getLevel()));
-        // TODO Auto-generated method stub
       }
 
       private Priority convertPriority(org.apache.log4j.Level level) {
@@ -185,7 +178,7 @@ public final class Logging {
       }
 
       @Override
-      public void addFilter(Filter newFilter) {
+      public void addFilter(org.apache.log4j.spi.Filter newFilter) {
       }
     });
   }
