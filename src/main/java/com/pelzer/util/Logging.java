@@ -78,109 +78,17 @@ public final class Logging {
     rootLogger.addHandler(streamHandler);
     java.util.logging.Logger.getLogger("com.pelzer").setLevel(Priority.ALL.getLevel());
 
-    if (StringMan.isStringTrue(PropertyManager.getProperty("pelzer.log.configurelog4j")))
-      configureLog4j();
-
+    if (StringMan.isStringTrue(PropertyManager.getProperty("pelzer.log.configurelog4j"))) {
+      try {
+        loggingLogger.info("Reseting log4j to use pelzer logging instead.");
+        Log4JConfigurer.configureLog4j();
+      }
+      catch (Exception ex) {
+        loggingLogger.error("Attempted to override log4j configuration, but log4j wasn't in classpath");
+      }
+    }
     loggingLogger.info("Build Info: Build #" + PropertyManager.getBuildNumber() + " - " + PropertyManager.getProperty("", "build.date") + " (" + PropertyManager.getProperty("", "build.user") + ")");
     loggingLogger.info("Logging is now initialized.");
-  }
-
-
-  /**
-   * Called during init, potentially resets log4j to follow the settings
-   * configured by pelzer.util.
-   */
-  private static void configureLog4j() {
-    try {
-      // Check to see if log4j is in the classpath
-      Class.forName("org.apache.log4j.Logger");
-    }
-    catch (Exception ex) {
-      loggingLogger.warn("Attempted to override log4j configuration, but log4j wasn't found");
-      return;
-    }
-
-    loggingLogger.info("Reseting log4j to use pelzer logging instead.");
-    org.apache.log4j.LogManager.resetConfiguration();
-    org.apache.log4j.Logger.getRootLogger().addAppender(new org.apache.log4j.Appender() {
-      private String name;
-      
-      @Override
-      public void setName(String name) {
-        this.name = name;
-      }
-
-      @Override
-      public void setLayout(org.apache.log4j.Layout layout) {
-      }
-
-      @Override
-      public void setErrorHandler(org.apache.log4j.spi.ErrorHandler errorHandler) {
-      }
-
-      @Override
-      public boolean requiresLayout() {
-        return false;
-      }
-
-      @Override
-      public String getName() {
-        return name;
-      }
-
-      @Override
-      public org.apache.log4j.Layout getLayout() {
-        return null;
-      }
-
-      @Override
-      public org.apache.log4j.spi.Filter getFilter() {
-        return null;
-      }
-
-      @Override
-      public org.apache.log4j.spi.ErrorHandler getErrorHandler() {
-        return null;
-      }
-
-      @Override
-      public void doAppend(org.apache.log4j.spi.LoggingEvent event) {
-        Logger logger = getLogger(event.getLoggerName());
-        logger.genericLog(event.getMessage() + "", event.getThrowableInformation() == null ? null : event.getThrowableInformation().getThrowable(), convertPriority(event.getLevel()));
-      }
-
-      private Priority convertPriority(org.apache.log4j.Level level) {
-        switch (level.toInt()) {
-          case org.apache.log4j.Level.ALL_INT:
-            return Priority.ALL;
-          case org.apache.log4j.Level.TRACE_INT:
-            return Priority.VERBOSE;
-          case org.apache.log4j.Level.DEBUG_INT:
-            return Priority.DEBUG;
-          case org.apache.log4j.Level.WARN_INT:
-            return Priority.WARN;
-          case org.apache.log4j.Level.INFO_INT:
-            return Priority.INFO;
-          case org.apache.log4j.Level.ERROR_INT:
-            return Priority.ERROR;
-          case org.apache.log4j.Level.FATAL_INT:
-            return Priority.FATAL;
-        }
-        return Priority.OFF;
-      }
-
-      @Override
-      public void close() {
-      }
-
-      @Override
-      public void clearFilters() {
-      }
-
-      @Override
-      public void addFilter(org.apache.log4j.spi.Filter newFilter) {
-      }
-    });
   }
 
   private Logging() {
@@ -353,7 +261,7 @@ public final class Logging {
       return logger.isLoggable(Priority.INFO.getLevel());
     }
 
-    private void genericLog(String message, final Throwable ex, final Priority priority, final Object... objects) {
+    void genericLog(String message, final Throwable ex, final Priority priority, final Object... objects) {
       if (!mute) {
         final String replacements[] = new String[objects.length];
         for (int i = 0; i < objects.length; i++)
