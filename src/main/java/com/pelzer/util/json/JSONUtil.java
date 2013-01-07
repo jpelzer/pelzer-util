@@ -19,7 +19,7 @@ public class JSONUtil {
   private static Logging.Logger                           log           = Logging.getLogger(JSONUtil.class);
   
   /** Uses GSON to serialize the given object into a JSON string. */
-  public static String toJSON(Object obj) {
+  public static String toJSON(JSONObject obj) {
     return gson.toJson(obj);
   }
   
