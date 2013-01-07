@@ -61,8 +61,7 @@ public final class Logging {
         // handler to be the fileHandler.
         System.out.println("System will now begin rolling logging to '" + logfile + ".0'");
         streamHandler = fileHandler;
-      }
-      catch (final IOException ex) {
+      } catch (final IOException ex) {
         System.out.println("IOException while opening '" + logfile + "' for logging, unable to start.");
         ex.printStackTrace();
         System.exit(-1);
@@ -82,8 +81,7 @@ public final class Logging {
       try {
         loggingLogger.info("Reseting log4j to use pelzer logging instead.");
         Log4JConfigurer.configureLog4j();
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
         loggingLogger.error("Attempted to override log4j configuration, but log4j wasn't in classpath");
       }
     }
@@ -557,21 +555,24 @@ public final class Logging {
       final StringBuilder buffer = new StringBuilder(512);
       final StringBuilder header = new StringBuilder(100);
       header.append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS").format(new Date(record.getMillis())));
-      header.append(" [");
-      header.append(Thread.currentThread().getName());
-      header.append("] ");
+      header.append(" [").append(Thread.currentThread().getName()).append("] ");
       header.append(getDescriptionForLevel(record.getLevel()));
       header.append(" ");
       header.append(record.getLoggerName());
-      if (Logging.logMethodNames) {
-        header.append("#");
-        header.append(getCallingMethodName());
-        header.append("()");
-      }
+
+      if (Logging.logMethodNames)
+        header.append("#").append(getCallingMethodName()).append("()");
       header.append(" - ");
-      buffer.append(header);
-      buffer.append(record.getMessage());
-      buffer.append("\n");
+
+      // Split the message by \n for multi-line comments (annoying)
+      String message = record.getMessage();
+      if (message != null) {
+        for (String line : message.split("\n")) {
+          buffer.append(header).append(line).append("\n");
+        }
+      } else {
+        buffer.append(header).append(message).append("\n");
+      }
 
       // Write out the exception if there is one.
       if (record.getThrown() != null)
@@ -584,8 +585,7 @@ public final class Logging {
           // Strip off the first character because it's always a '\n'
           buffer.append(trace.substring(1));
           buffer.append("\n");
-        }
-        catch (final Throwable ex) {
+        } catch (final Throwable ex) {
           // Uh-oh!
           buffer.append("ERROR PRINTING STACK TRACE! " + ex.getMessage() + "\n");
         }
