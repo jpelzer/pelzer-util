@@ -84,3 +84,22 @@ So depending on the -Dpelzer.environment variable, we'd get:
 		
 When doing replacements, the system follows the same procedure to determine the correct environment, following cascades, etc. These replacements are then cached for fast access.
 
+## Property file #includes
+The PropertyManager property format allows you to specify #include directives that will cause the system to include the contents of other files located somewhere in the classpath. For example, adding the following line to a property file:
+
+	#include example.properties
+	
+Even though the #include looks like it's a comment, the property processor will correctly parse it. Otherwise, lines starting with '#' are ignored as comments.
+
+When you include the pelzer-util package in your project, the first time you use a feature that requires the PropertyManager (which is most things in the pelzer-util package, due to logging having a dependency on properties), the system will begin intialization and loading every property file required by the project. The way it determines what files to parse is via a simple bootstrap file named 'PropertyManager.include.properties'. This file should be in the root of your classpath. In a default maven project, the correct location would be in /src/main/resources/PropertyManager.include.properties. 
+
+If there are multiple versions of this file in the classpath, it will load them all in no particular order. This include file can technically contain property definitions as well as #include directives, but the convention is to have all #includes for your project in this one file, and then have all your properties in other files.
+
+The filename can contain path information if necessary, this will be relative to classpath, so you can potentially have:
+
+	#include foo/bar/Example.properties
+
+That file would likely be in your src/main/resources/foo/bar/ directory.
+
+
+
