@@ -1,0 +1,7 @@
+package com.pelzer.util
+
+contributor(context()) {
+  if (classType?.hasAnnotation("com.pelzer.util.Log")) {
+    property(name: 'log', type: 'com.pelzer.util.Logging.Logger')
+  }
+}
