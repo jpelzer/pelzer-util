@@ -47,8 +47,15 @@ public class JSONUtil {
       throw new JsonParseException("Unable to find end of _i value.");
     String id = json.substring(index1, index2);
     Class<? extends JSONObject> clazz = registrations.get(id);
-    if (clazz == null)
-      throw new JsonParseException("No registration for JSONObject message.identifier:" + id);
+    if (clazz == null){
+      // See if the id is a full classname
+      try{
+        clazz = (Class<? extends JSONObject>) Class.forName(id);
+        registrations.put(id, clazz);
+      }catch(ClassNotFoundException ex){
+        throw new JsonParseException("No registration for JSONObject message.identifier:" + id);
+      }
+    }
     return fromJSON(json, clazz);
   }
   

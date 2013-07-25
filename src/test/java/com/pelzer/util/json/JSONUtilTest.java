@@ -36,6 +36,17 @@ public class JSONUtilTest extends TestCase {
 		}
 	}
 
+  public static class JSONClassnameIdentifier extends JSONObject{
+    @Override
+    protected String getIdentifier(){
+      return this.getClass().getName();
+    }
+  }
+
+  public void testClassnameIdentifier(){
+    assertTrue(JSONUtil.fromJSON("{\"_i\":\"com.pelzer.util.json.JSONUtilTest$JSONClassnameIdentifier\"}") instanceof JSONClassnameIdentifier);
+  }
+
 	public void testTimestamp() {
 		final String json = "{\"timestamp\":1293643635318,\"i\":1,\"j\":2,\"jason\":\"yaaaaargh\",\"_i\":\"foo\"}";
 		assertEquals(json,
