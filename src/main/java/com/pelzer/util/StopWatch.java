@@ -37,7 +37,15 @@ public class StopWatch {
 
   /** Creates a new stopwatch. You must call {@link #start()} to begin timing.*/
   public StopWatch() {
-    reset();
+    this(false);
+  }
+
+  /** Creates a new stopwatch and starts it. */
+  public StopWatch(boolean running){
+    if(running)
+      start();
+    else
+      reset();
   }
 
   /** Resets elapsed time to zero and stops the clock ticking. */
