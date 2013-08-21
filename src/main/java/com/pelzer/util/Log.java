@@ -20,7 +20,6 @@ import java.lang.annotation.Target;
 @GroovyASTTransformationClass("org.codehaus.groovy.transform.LogASTTransformation")
 public @interface Log{
   String value() default "log";
-
   Class<? extends LogASTTransformation.LoggingStrategy> loggingStrategy() default PelzerUtilLoggingStrategy.class;
 
   /**
@@ -37,7 +36,7 @@ public @interface Log{
 
     public FieldNode addLoggerFieldToClass(ClassNode classNode, String logFieldName){
       return classNode.addField(logFieldName,
-              Opcodes.ACC_FINAL | Opcodes.ACC_TRANSIENT | Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE,
+              Opcodes.ACC_FINAL | Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE,
               LOGGER_CLASSNODE,
               new MethodCallExpression(
                       new ClassExpression(LOGGING_CLASSNODE), "getLogger",
@@ -51,15 +50,15 @@ public @interface Log{
     public Expression wrapLoggingMethodCall(Expression logVariable, String methodName, Expression originalExpression){
       if("debug".equals(methodName)){
         return new TernaryExpression(
-                new BooleanExpression(new MethodCallExpression(logVariable, "isDebugEnabled", null)),
+                new BooleanExpression(new MethodCallExpression(logVariable, "isDebugEnabled", ArgumentListExpression.EMPTY_ARGUMENTS)),
                 originalExpression,
-                ConstantExpression.NULL);
+                ConstantExpression.EMPTY_EXPRESSION);
       }else if("info".equals(methodName)){
         return new TernaryExpression(
-                new BooleanExpression(new MethodCallExpression(logVariable, "isInfoEnabled", null)),
+                new BooleanExpression(new MethodCallExpression(logVariable, "isInfoEnabled", ArgumentListExpression.EMPTY_ARGUMENTS)),
                 originalExpression,
-                ConstantExpression.NULL);
-      }else
+                ConstantExpression.EMPTY_EXPRESSION);
+      }else //*/
         return originalExpression;
     }
   }
