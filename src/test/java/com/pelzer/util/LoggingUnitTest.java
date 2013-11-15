@@ -53,4 +53,26 @@ public class LoggingUnitTest extends TestCase {
     log4j =  org.apache.log4j.Logger.getLogger(LoggingUnitTest.class.getName()+"#testLog4J()");
     log4j.log(Level.DEBUG, "Testing Log4J DEBUG.");
   }
+
+  public void testLocalProperty() throws InterruptedException{
+    class LoggerThread extends Thread{
+      private Logging.Logger log = Logging.getLogger(this);
+
+      @Override
+      public void run(){
+        Logging.setLocalProperty("I'm a property: " + getName());
+        for(int i = 0; i < 5; i++){
+          log.debug("I'm alive");
+          Absorb.sleep(250);
+        }
+      }
+    }
+
+
+    Thread threads[] = new Thread[] {new LoggerThread(),new LoggerThread(), new LoggerThread()};
+    for(Thread thread:threads)
+      thread.start();
+    for(Thread thread:threads)
+      thread.join();
+  }
 }
