@@ -42,6 +42,7 @@ public final class Logging {
   private static boolean          logMethodNames = false;
   private static LogManager       logManager     = LogManager.getLogManager();
   private static StreamHandler    streamHandler  = new StreamHandler(System.out, new LogFormatter());
+  private static ThreadLocal<String> localProperty = new ThreadLocal<String>();
 
   static {
     // Mute the logging system?
@@ -87,6 +88,17 @@ public final class Logging {
     }
     loggingLogger.info("Build Info: Build #" + PropertyManager.getBuildNumber() + " - " + PropertyManager.getProperty("", "build.date") + " (" + PropertyManager.getProperty("", "build.user") + ")");
     loggingLogger.info("Logging is now initialized.");
+  }
+
+  public static String getLocalProperty(){
+    return localProperty.get();
+  }
+
+  /**
+   * Sets a threadlocal String that will be included in logged statements when non-null. Clear this by setting to null.
+   */
+  public static void setLocalProperty(String localProperty){
+    Logging.localProperty.set(localProperty);
   }
 
   private Logging() {
@@ -554,8 +566,12 @@ public final class Logging {
     public final String format(final LogRecord record) {
       final StringBuilder buffer = new StringBuilder(512);
       final StringBuilder header = new StringBuilder(100);
+      final String localProperty = Logging.getLocalProperty();
+
       header.append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS").format(new Date(record.getMillis())));
       header.append(" [").append(Thread.currentThread().getName()).append("] ");
+      if(localProperty != null)
+        header.append("{").append(localProperty).append("} ");
       header.append(getDescriptionForLevel(record.getLevel()));
       header.append(" ");
       header.append(record.getLoggerName());
