@@ -162,7 +162,7 @@ public final class Logging {
   private static java.util.logging.Logger initialize(final String node, final boolean initParents) {
     java.util.logging.Logger logger = logManager.getLogger(node);
     if (logger == null) {
-      if (initParents && node.indexOf(".") > -1)
+      if (initParents && node.contains("."))
         // Make sure parent nodes initialize first:
         // ie. do 'com', then 'com.pelzer', then 'com.pelzer.util'
         initializeParent(node.substring(0, node.lastIndexOf(".")));
