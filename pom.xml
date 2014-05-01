@@ -5,7 +5,7 @@
 	<groupId>com.pelzer.util</groupId>
 	<artifactId>pelzer-util</artifactId>
 	<name>Pelzer Java Utilities</name>
-	<version>1.10.0</version>
+	<version>1.10.1</version>
 	<description>The Pelzer.com Java Utilities package.</description>
 	<url>http://util.pelzer.com/</url>
 	<parent>
@@ -163,7 +163,7 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
-            <version>2.1.6</version>
+            <version>2.2.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

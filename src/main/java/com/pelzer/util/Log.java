@@ -43,6 +43,11 @@ public @interface Log{
                       new ConstantExpression(classNode.getName())));
     }
 
+    @Override
+    public FieldNode addLoggerFieldToClass(ClassNode classNode, String fieldName, String categoryName){
+      return addLoggerFieldToClass(classNode, fieldName);
+    }
+
     public boolean isLoggingMethod(String methodName){
       return methodName.matches("fatal|error|warn|info|debug");
     }
