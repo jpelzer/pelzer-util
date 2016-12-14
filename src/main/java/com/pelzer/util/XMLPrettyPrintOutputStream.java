@@ -27,7 +27,7 @@ import java.io.OutputStream;
  * was significant to it in some way. In general, this class reads an entire
  * line of the incoming text, then parses it when a newline or stream close
  * command comes in. If the line is empty (only whitespace) then the line is
- * dropped. If the line starts with a '<' (after removing whitespace) then the
+ * dropped. If the line starts with a '&lt;' (after removing whitespace) then the
  * system indents that line based on its perceived current depth.
  */
 public class XMLPrettyPrintOutputStream extends OutputStream {

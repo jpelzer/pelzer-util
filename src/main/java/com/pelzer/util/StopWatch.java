@@ -89,7 +89,7 @@ public class StopWatch {
     return elapsed;
   }
 
-  /** @returns true if the clock is running. */
+  /** @return true if the clock is running. */
   public boolean isRunning() {
     return running;
   }

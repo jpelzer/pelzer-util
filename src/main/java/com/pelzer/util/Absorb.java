@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  * Utility class to absorb exceptions in certain cases such as sleeping and in
  * catch blocks.
  */
-public class Absorb {
+public class Absorb{
   private static final Logging.Logger ignore = Logging.getLogger(Absorb.class.getName() + ".ignore");
   private static final Set<IgnoredExceptionListener> ignoredExceptionListeners = new HashSet<IgnoredExceptionListener>();
 
@@ -32,15 +32,15 @@ public class Absorb {
    * <code>timeUnit.sleep(units)</code>, but absorbs any InterruptedException
    * and exits normally.
    */
-  public static void sleep(final TimeUnit timeUnit, final long units) {
-    try {
+  public static void sleep(final TimeUnit timeUnit, final long units){
+    try{
       timeUnit.sleep(units);
-    } catch (final InterruptedException ignored) {
+    }catch(final InterruptedException ignored){
       ignore(ignored);
     }
   }
 
-  /** Shortcut to {@link #sleep(TimeUnit.MILLISECONDS, long)} */
+  /** Shortcut to {@link Absorb#sleep(TimeUnit, long)} */
   public static void sleep(final long milliseconds){
     sleep(TimeUnit.MILLISECONDS, milliseconds);
   }
@@ -48,26 +48,25 @@ public class Absorb {
   /**
    * Not an exactly perfect name, but basically takes the given exception and
    * logs it under this class's logger, which is silenced by default. Useful for
-   * making sure you don't have empty
-   * <code>catch</clauses>, but you don't have to write a bunch of boilerplate
+   * making sure you don't have empty <code>catch</code> clauses, but you don't have to write a bunch of boilerplate
    * to do something with the tossed exception.
    */
-  public static void ignore(final Throwable ignored) {
+  public static void ignore(final Throwable ignored){
     ignore.error("Ignored exception", ignored);
-    for(final IgnoredExceptionListener listener:ignoredExceptionListeners) {
+    for(final IgnoredExceptionListener listener : ignoredExceptionListeners){
       listener.handle(ignored);
     }
   }
 
-  public static synchronized void addIgnoredExceptionListener(final IgnoredExceptionListener listener) {
+  public static synchronized void addIgnoredExceptionListener(final IgnoredExceptionListener listener){
     ignoredExceptionListeners.add(listener);
   }
 
-  public static synchronized void removeIgnoredExceptionListener(final IgnoredExceptionListener listener) {
+  public static synchronized void removeIgnoredExceptionListener(final IgnoredExceptionListener listener){
     ignoredExceptionListeners.remove(listener);
   }
 
-  public static interface IgnoredExceptionListener {
+  public static interface IgnoredExceptionListener{
     void handle(Throwable ignored);
   }
 
@@ -75,7 +74,7 @@ public class Absorb {
    * Wraps the passed exception and then rethrows it wrapped in a runtime
    * exception.
    */
-  public static void rethrow(final Throwable ex) {
+  public static void rethrow(final Throwable ex){
     throw new RuntimeException("Rethrowing as RTE: ", ex);
   }
 }
