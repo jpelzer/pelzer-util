@@ -173,8 +173,8 @@ public class StringMan {
   }
 
   /**
-   * Makes a string xml-safe, converting &<>"' to their &token; equivalents, and converting all
-   * other non-safe chars to their &#000; version.
+   * Makes a string xml-safe, converting &amp;&lt;&gt;"' to their &amp;token; equivalents, and converting all
+   * other non-safe chars to their &amp;#000; version.
    */
   public static String escapeForXML(String inString) {
     if (inString == null)

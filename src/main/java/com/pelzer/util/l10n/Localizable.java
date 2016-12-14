@@ -37,7 +37,7 @@ public class Localizable<E> implements Map<Locale, E>, Serializable {
   }
 
   /**
-   * Instantiates, and then calls {@link #setDefault(E, Locale)}
+   * Instantiates, and then calls {@link Localizable#setDefault(Object, Locale)}
    * 
    * @param defaultValue
    *          can be null, and subsequent calls to getDefault will return null
@@ -97,7 +97,7 @@ public class Localizable<E> implements Map<Locale, E>, Serializable {
 
   /**
    * @return the String set during construction or later by a call to
-   *         {@link #setDefault(String, Localizer)}
+   *         {@link Localizable#setDefault(Object, Locale)}
    */
   public E getDefault() {
     return exactGet(defaultLocale);
@@ -164,7 +164,7 @@ public class Localizable<E> implements Map<Locale, E>, Serializable {
     return null;
   }
 
-  /** @return the default localizer set during construction or {@link #setDefault(String, Localizer)} */
+  /** @return the default localizer set during construction or {@link Localizable#setDefault(Object, Locale)} */
   public Locale getDefaultLocale() {
     return defaultLocale;
   }

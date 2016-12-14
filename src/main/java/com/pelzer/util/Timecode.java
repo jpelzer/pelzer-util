@@ -75,7 +75,7 @@ public class Timecode implements java.io.Serializable, Cloneable {
   }
 
   /**
-   * Creates a new CD timecode based on seconds using default seconds->frames rate from
+   * Creates a new CD timecode based on seconds using default seconds-&gt;frames rate from
    * UploadConstants
    */
   public Timecode(float seconds) {

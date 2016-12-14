@@ -25,7 +25,6 @@ package com.pelzer.util;
  * 
  * For further details on the methods in this class, refer to the Unix man pages
  * for crypt(3c).
- * 
  */
 
 public class UnixCrypt {
@@ -174,7 +173,7 @@ public class UnixCrypt {
    * @param strsalt
    *          A 2 character String, containing the salt to encrypt the password
    *          with.
-   * @returns String containing encrypted password.
+   * @return String containing encrypted password.
    */
   public static String crypt(String strpw, String strsalt) {
     char[] pw = strpw.toCharArray();

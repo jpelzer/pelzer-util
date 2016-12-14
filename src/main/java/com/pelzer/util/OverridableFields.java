@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * This class is used to cache properties from the PropertyManager, and should be extended by local
  * Constants classes in various packages. Classes should put a line in their static initializer like
- * this to guarantee the file gets initialized...: new <Classname>().init();
+ * this to guarantee the file gets initialized...: new &lt;Classname&gt;().init();
  */
 public abstract class OverridableFields implements Serializable{
 
