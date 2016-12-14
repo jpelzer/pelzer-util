@@ -20,8 +20,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.logging.*;
 
 /**
@@ -35,6 +35,7 @@ public final class Logging{
   private static boolean logMethodNames = false;
   private static StreamHandler streamHandler = new StreamHandler(System.out, new LogFormatter());
   private static ThreadLocal<String> localProperty = new ThreadLocal<String>();
+  private static Map<String, Logging.Logger> loggerCache = new WeakHashMap<String, Logger>();
 
   static{
     // Mute the logging system?
@@ -152,10 +153,8 @@ public final class Logging{
     initialize(node, false);
   }
 
-  private static Map<String, Logging.Logger> loggers = new HashMap<String, Logging.Logger>();
-
   private static Logging.Logger initialize(final String node, final boolean initParents){
-    Logger log = loggers.get(node);
+    Logger log = loggerCache.get(node);
     if(log != null){
       return log;
     }
@@ -199,7 +198,7 @@ public final class Logging{
       }
 
       log = new Logging.Logger(logger);
-      loggers.put(node, log);
+      loggerCache.put(node, log);
     }
 
     loggingLogger.warn("Doing initialization for node '" + node + "', priority '" + priority + "'");
