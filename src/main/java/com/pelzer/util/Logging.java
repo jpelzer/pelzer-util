@@ -20,8 +20,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.logging.*;
 
 /**
@@ -33,9 +33,9 @@ public final class Logging{
   static java.util.logging.Logger rootLogger = java.util.logging.Logger.getLogger("");
   private static volatile boolean mute = false;
   private static boolean logMethodNames = false;
-  private static LogManager logManager = LogManager.getLogManager();
   private static StreamHandler streamHandler = new StreamHandler(System.out, new LogFormatter());
   private static ThreadLocal<String> localProperty = new ThreadLocal<String>();
+  private static Map<String, Logging.Logger> loggerCache = new WeakHashMap<String, Logger>();
 
   static{
     // Mute the logging system?
@@ -103,7 +103,7 @@ public final class Logging{
    * warn(), error(), fatal() methods, as well as custom stuff.
    */
   public static Logging.Logger getLogger(final String node){
-    return new Logging.Logger(initialize(node, true));
+    return initialize(node, true);
   }
 
   /**
@@ -147,29 +147,34 @@ public final class Logging{
   }
 
   private static void initializeParent(final String node){
-    if(node.lastIndexOf(".") > -1)
-      initializeParent(node.substring(0, node.lastIndexOf(".")));
+    final int endIndex = node.lastIndexOf(".");
+    if(endIndex > -1)
+      initializeParent(node.substring(0, endIndex));
     initialize(node, false);
   }
 
-  private static java.util.logging.Logger initialize(final String node, final boolean initParents){
-    java.util.logging.Logger logger = logManager.getLogger(node);
-    if(logger == null){
-      if(initParents && node.contains("."))
-        // Make sure parent nodes initialize first:
-        // ie. do 'com', then 'com.pelzer', then 'com.pelzer.util'
-        initializeParent(node.substring(0, node.lastIndexOf(".")));
+  private static Logging.Logger initialize(final String node, final boolean initParents){
+    Logger log = loggerCache.get(node);
+    if(log != null){
+      return log;
+    }
+
+    final int dotLastIndex = node.lastIndexOf(".");
+    if(initParents && dotLastIndex > -1)
+      // Make sure parent nodes initialize first:
+      // ie. do 'com', then 'com.pelzer', then 'com.pelzer.util'
+      initializeParent(node.substring(0, dotLastIndex));
+
+    Priority priority = null;
+
+    synchronized(Logging.class){
       // Create the new logger
-      logger = java.util.logging.Logger.getLogger(node);
-      final String logPath = "com.pelzer.util.Logging.";
-      String appenderString = PropertyManager.getLocalizedProperty(logPath + node, "appender");
-      if(appenderString == null)
-        appenderString = PropertyManager.getProperty(logPath + node, "appender");
-      final String priorityString = PropertyManager.getProperty(logPath + node, "priority");
-      // Priority priority = Priority.ALL; // Default to ALL
-      Priority priority = null;
+      java.util.logging.Logger logger = java.util.logging.Logger.getLogger(node);
+
       // set priority
-      if(priorityString != null)
+      final String logPath = "com.pelzer.util.Logging.";
+      final String priorityString = PropertyManager.getProperty(logPath + node, "priority");
+      if(priorityString != null){
         if(priorityString.equals("FATAL"))
           priority = Priority.FATAL;
         else if(priorityString.equals("ERROR"))
@@ -186,31 +191,18 @@ public final class Logging{
           priority = Priority.OBNOXIOUS;
         else if(priorityString.equals("ALL"))
           priority = Priority.ALL;
-      initialize(node, priority, appenderString);
+
+        if(priority != null){
+          logger.setLevel(priority.getLevel());
+        }
+      }
+
+      log = new Logging.Logger(logger);
+      loggerCache.put(node, log);
     }
 
-    return logger;
-  }
-
-  private static Map<String, java.util.logging.Logger> loggers = new HashMap<String, java.util.logging.Logger>();
-
-  private static java.util.logging.Logger initialize(final String node, final Priority priority, final String appenderString){
-    java.util.logging.Logger logger = loggers.get(node);
-    if(logger != null)
-      return logger;
-    synchronized(Logging.class){
-      // Double check that the logger doesn't exist, now that we have a lock.
-      logger = loggers.get(node);
-      if(logger != null)
-        return logger;
-
-      // logger is null, initialize
-      logger = java.util.logging.Logger.getLogger(node);
-      if(priority != null)
-        logger.setLevel(priority.getLevel());
-      loggers.put(node, logger);
-    }
-    return logger;
+    loggingLogger.warn("Doing initialization for node '" + node + "', priority '" + priority + "'");
+    return log;
   }
 
   /**
@@ -601,7 +593,7 @@ public final class Logging{
           buffer.append("\n");
         }catch(final Throwable ex){
           // Uh-oh!
-          buffer.append("ERROR PRINTING STACK TRACE! " + ex.getMessage() + "\n");
+          buffer.append("ERROR PRINTING STACK TRACE! ").append(ex.getMessage()).append("\n");
         }
 
       return buffer.toString();
@@ -621,8 +613,8 @@ public final class Logging{
     private String replace(final String haystack, final String needle, final String replacement){
       if(haystack == null || needle == null || replacement == null || needle.length() == 0)
         return haystack;
-      final StringBuffer buf = new StringBuffer(haystack.length());
-      int start = 0, end = 0;
+      final StringBuilder buf = new StringBuilder(haystack.length());
+      int start = 0, end;
       while((end = haystack.indexOf(needle, start)) != -1){
         buf.append(haystack.substring(start, end)).append(replacement);
         start = end + needle.length();
@@ -639,7 +631,7 @@ public final class Logging{
       return "";
     }
 
-    private final String getDescriptionForLevel(final Level level){
+    private String getDescriptionForLevel(final Level level){
       // Put the three most likely levels first
       if(level == Level.FINE)
         return "DEBUG";
