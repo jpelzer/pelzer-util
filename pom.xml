@@ -4,7 +4,7 @@
 	<groupId>com.pelzer.util</groupId>
 	<artifactId>pelzer-util</artifactId>
 	<name>Pelzer Java Utilities</name>
-	<version>1.11.2-SNAPSHOT</version>
+	<version>1.11.1</version>
 	<description>The Pelzer.com Java Utilities package.</description>
 	<url>http://util.pelzer.com/</url>
 	<parent>
@@ -63,7 +63,7 @@
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-site-plugin</artifactId>
-							<version>3.2</version>
+							<version>3.3</version>
 						</plugin>
 					</plugins>
 				</pluginManagement>
