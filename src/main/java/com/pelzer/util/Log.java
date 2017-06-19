@@ -54,16 +54,14 @@ public @interface Log{
 
     public Expression wrapLoggingMethodCall(Expression logVariable, String methodName, Expression originalExpression){
       if("debug".equals(methodName)){
-        return new TernaryExpression(
-                new BooleanExpression(new MethodCallExpression(logVariable, "isDebugEnabled", ArgumentListExpression.EMPTY_ARGUMENTS)),
-                originalExpression,
-                ConstantExpression.EMPTY_EXPRESSION);
+        MethodCallExpression mce = new MethodCallExpression(logVariable, "isDebugEnabled", ArgumentListExpression.EMPTY_ARGUMENTS);
+        mce.setImplicitThis(false);
+        return new TernaryExpression(new BooleanExpression(mce), originalExpression, ConstantExpression.EMPTY_EXPRESSION);
       }else if("info".equals(methodName)){
-        return new TernaryExpression(
-                new BooleanExpression(new MethodCallExpression(logVariable, "isInfoEnabled", ArgumentListExpression.EMPTY_ARGUMENTS)),
-                originalExpression,
-                ConstantExpression.EMPTY_EXPRESSION);
-      }else //*/
+        MethodCallExpression mce = new MethodCallExpression(logVariable, "isInfoEnabled", ArgumentListExpression.EMPTY_ARGUMENTS);
+        mce.setImplicitThis(false);
+        return new TernaryExpression(new BooleanExpression(mce), originalExpression, ConstantExpression.EMPTY_EXPRESSION);
+      }else
         return originalExpression;
     }
   }
