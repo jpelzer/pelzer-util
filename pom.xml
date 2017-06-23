@@ -4,7 +4,7 @@
 	<groupId>com.pelzer.util</groupId>
 	<artifactId>pelzer-util</artifactId>
 	<name>Pelzer Java Utilities</name>
-	<version>1.11.5</version>
+	<version>1.11.6-SNAPSHOT</version>
 	<description>The Pelzer.com Java Utilities package.</description>
 	<url>http://util.pelzer.com/</url>
 	<parent>
